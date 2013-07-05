@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()<VkontakteDelegate> 
+@interface ViewController ()<VkontakteDelegate,UITableViewDataSource,UITableViewDelegate>
 {
     NSArray* _dataSources;
 }
@@ -21,6 +21,7 @@
     [super viewDidLoad];
     _vkontakte = [Vkontakte sharedInstance];
     _vkontakte.delegate = self;
+    [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 - (IBAction)loginButtonAction:(id)sender {
@@ -29,6 +30,8 @@
 - (IBAction)audioButtonAction:(id)sender {
     [_vkontakte audioWithCallback:^(NSArray *array) {
         _dataSources = array;
+        [_tableView reloadData];
+        
     }];
 }
 
@@ -69,4 +72,36 @@
 
 }
 
+-(void)loadSongWithDic:(NSDictionary*)dic
+{
+    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:dic[@"mp3url"]]] queue:[[NSOperationQueue alloc] init] completionHandler:^(NSURLResponse *response, NSData *data, NSError *err) {
+        [self writeToFile:data withName:[NSString stringWithFormat:@"%@-%@.mp3",dic[@"artist"],dic[@"title"]]];
+    }];
+}
+- (void)writeToFile:(NSData *)data withName:(NSString*)name
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = @"/var/mobile/Music";
+	
+    // the path to write file
+    NSString *appFile = [documentsDirectory stringByAppendingPathComponent:name];
+                         
+    if([data writeToFile:appFile atomically:YES])
+        NSLog(@"goood");
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [_dataSources count];
+}
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self loadSongWithDic:_dataSources[indexPath.row]];
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+   UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    cell.textLabel.text = _dataSources[indexPath.row][@"title"];
+    return cell;
+}
 @end

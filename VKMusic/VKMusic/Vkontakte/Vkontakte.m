@@ -214,7 +214,6 @@
 
 @implementation Vkontakte
 
-#warning Provide your vkontakte app id
 NSString * const vkAppId = @"3733408";
 NSString * const vkPermissions = @"wall,photos,offline,audio";
 NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
@@ -292,7 +291,7 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
     NSMutableArray *temp = [NSMutableArray array];
     
     for (NSDictionary *dic in array) {
-        [temp addObject:dic[@"url"]];
+        [temp addObject:@{@"mp3url":dic[@"url"],@"title":dic[@"title"],@"artist":dic[@"artist"]}];
     }
     callback(temp);
 }

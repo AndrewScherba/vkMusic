@@ -13,5 +13,6 @@
     
     Vkontakte *_vkontakte;
 }
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UIButton *loginButton;
 @end
